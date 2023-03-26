@@ -1,10 +1,27 @@
+import os
+import sys
+import yaml
 from generateWalls import createWalls
 
 class Game:
     def __init__(self):
+        self.config = self.load_config()
         self.rounds = 1
         self.state = ['East', 'East']
-        self.melds = self.special = {f"Player {i}": [] for i in range(1, 5)}
+        self.dice_roll = None
+        self.discard = {f"Player {i}": [] for i in range(1, 5)}
+        self.melds = {f"Player {i}": [] for i in range(1, 5)}
+        self.special = {f"Player {i}": [] for i in range(1, 5)}
+        self.all_discard = []
+        self.hands = self.tiles = {f"Player {i}": [] for i in range(1, 5)}
+
+    def load_config(self):
+        script_path = os.path.dirname(os.path.abspath(sys.argv[0]))
+        config_file_path = os.path.join(script_path, 'config.yaml')
+        with open(config_file_path, 'r') as f:
+            config = yaml.safe_load(f)
+        return config
+    
 
     def changeWind(self, currentWind):
         winds = {
@@ -33,6 +50,15 @@ class Game:
             "dice_roll" : dice_roll,
             "hand_cards" : hand_cards
         }
+
+        # Check for special tiles and replace them for each player
+        for player, hand in obj['hand_cards'].items():
+            obj['hand_cards'][player], obj['tiles'] = self.replace_special_tiles(player, hand, obj['tiles'])
+
+        self.tiles = obj['tiles']
+        self.dice_roll = obj['dice_roll']
+        self.hands = obj['hand_cards']
+
         return obj
     
     def replace_special_tiles(self, player, hand, tiles):
@@ -53,17 +79,26 @@ class Game:
 
         return hand, tiles
 
+    def progressRound(self):
+
+        pass
     
 
 
 
 if __name__ == "__main__":
     game = Game()
+    print(game.config)
     print(game.changeWind(['West', 'West']))
     round = game.startRound()
     # print(round)
-    print(len(round['tiles']))
-    hand = ['Bamboo-5', 'Dot-4', 'Red', 'East', 'Character-5', 'Character-6', 'West', 'Character-1', 'Bamboo-7', 'Bamboo-9', 'Dot-7', 'Character-9', 'White', 'F1', 'Cat']
-    new_hand, new_tiles = game.replace_special_tiles("Player 1", hand, round['tiles'])
     print(game.special)
-    print(new_hand)
+    print(game.hands)
+    for player, hand in game.hands.items():
+        print("{} : {}".format(player, len(hand)))
+    print(game.melds)
+    # print(len(round['tiles']))
+    # hand = ['Bamboo-5', 'Dot-4', 'Red', 'East', 'Character-5', 'Character-6', 'West', 'Character-1', 'Bamboo-7', 'Bamboo-9', 'Dot-7', 'Character-9', 'White', 'F1', 'Cat']
+    # new_hand, new_tiles = game.replace_special_tiles("Player 1", hand, round['tiles'])
+    # print(game.special)
+    # print(new_hand)

@@ -1,0 +1,7 @@
+initial_points: 10000
+rates_name: "2-4"
+kong_rate_visible: 60
+kong_rate_hidden: 120
+base_rates: [80, 160, 320, 640, 1280]
+shooter: true
+seven_pairs: true

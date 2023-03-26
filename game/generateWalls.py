@@ -34,6 +34,7 @@ class createWalls:
         return tiles
 
     # 2. Functions that rolls 3 dices
+    # Function might not be needed, given dice roll just adds another layer of random. Random already present in wall building
     def roll_dices(self):
         return [random.randint(1, 6) for _ in range(3)]
 
