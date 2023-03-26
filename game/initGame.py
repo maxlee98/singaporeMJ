@@ -2,18 +2,24 @@ import os
 import sys
 import yaml
 from generateWalls import createWalls
+from callMelds import Melds
 
 class Game:
     def __init__(self):
         self.config = self.load_config()
+        self.melds_fn = Melds()
+        self.end = False
         self.rounds = 1
+        self.turn = 1
+        self.player = "Player 1"
         self.state = ['East', 'East']
         self.dice_roll = None
         self.discard = {f"Player {i}": [] for i in range(1, 5)}
         self.melds = {f"Player {i}": [] for i in range(1, 5)}
         self.special = {f"Player {i}": [] for i in range(1, 5)}
+        self.hands = {f"Player {i}": [] for i in range(1, 5)}
         self.all_discard = []
-        self.hands = self.tiles = {f"Player {i}": [] for i in range(1, 5)}
+        self.tiles = []
 
     def load_config(self):
         script_path = os.path.dirname(os.path.abspath(sys.argv[0]))
@@ -78,10 +84,70 @@ class Game:
                 i += 1
 
         return hand, tiles
+    
+    def is_game_end(self):
+        # Check if there are 15 or fewer tiles left
+        if len(self.tiles) <= 15:
+            return True
+
+        # Check if a player has won via "Mahjong"
+        # You can implement the logic for checking "Mahjong" based on your game rules
+
+        # ... check if any player has won ...
+
+        return False
 
     def progressRound(self):
+        while not self.end:
+            self.progressTurn()
 
-        pass
+    def changePlayer(self):
+        next_player = {
+            'Player 1' : 'Player 2',
+            'Player 2' : 'Player 3',
+            'Player 3' : 'Player 4',
+            'Player 4' : 'Player 1'
+        }
+        self.player = next_player[self.player]
+
+    def progressTurn(self):
+        print("{} turn..".format(self.player))
+        if len(self.all_discard) == 0:
+            # First player discards a card (replace 'Bamboo-5' with the desired card to discard)
+            recent_discard = input("Choose 1 Card to discard: {} \n>> ".format(self.hands[self.player]))
+            self.discardCard(recent_discard)
+            self.turn += 1
+            self.changePlayer()
+        else:
+            # Check for the most recent discard
+            recent_discard = self.all_discard[-1]
+
+            # Iterate through players to check if they can call chow, pong, or kong
+            
+            for player, hand in self.hands.items():
+                # Check if the player can call chow, pong, or kong
+                can_chow, can_pong, can_kong = self.melds_fn.can_meld(hand, recent_discard)
+
+                if can_chow or can_pong or can_kong:
+
+                    print(self.melds_fn.display_melds(hand, recent_discard))
+                    # Perform the action (call chow, pong, or kong) and update the turn accordingly
+                    # You can implement this logic based on your game rules
+
+                    # ... perform action and update turn ...
+                    self.end = True
+                    break
+
+            # If no Action, Draw Card
+            draw = self.tiles.pop(0)
+            
+
+    def discardCard(self, discarded_tile):
+        self.hands[self.player].remove(discarded_tile)
+        self.discard[self.player].append(discarded_tile)
+        self.all_discard.append(discarded_tile)
+
+
     
 
 
@@ -93,10 +159,11 @@ if __name__ == "__main__":
     round = game.startRound()
     # print(round)
     print(game.special)
-    print(game.hands)
-    for player, hand in game.hands.items():
-        print("{} : {}".format(player, len(hand)))
+    # print(game.hands)
+    # for player, hand in game.hands.items():
+    #     print("{} : {}".format(player, len(hand)))
     print(game.melds)
+    print(game.progressRound())
     # print(len(round['tiles']))
     # hand = ['Bamboo-5', 'Dot-4', 'Red', 'East', 'Character-5', 'Character-6', 'West', 'Character-1', 'Bamboo-7', 'Bamboo-9', 'Dot-7', 'Character-9', 'White', 'F1', 'Cat']
     # new_hand, new_tiles = game.replace_special_tiles("Player 1", hand, round['tiles'])

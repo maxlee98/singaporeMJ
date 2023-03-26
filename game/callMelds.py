@@ -5,10 +5,10 @@ class Melds():
         pass
 
     def can_form_chow(self, hand, discarded_tile):
-        suit = discarded_tile.split('-')[0]
-        number = int(discarded_tile.split('-')[1])
-        if suit not in ['Bamboo', 'Character', 'Dot']:
+        if '-' not in discarded_tile:
             return False
+        number = int(discarded_tile.split('-')[1])
+        suit = discarded_tile.split('-')[0]
 
         # Include the discarded tile in the hand before checking for a chow
         hand_with_discarded_tile = hand.copy()
@@ -21,19 +21,19 @@ class Melds():
         return False
 
 
-    def can_form_pong(self, hand, tile):
-        return hand.count(tile) >= 2
+    def can_form_pong(self, hand, discarded_tile):
+        return hand.count(discarded_tile) >= 2
 
-    def can_form_kong(self, hand, tile):
-        return hand.count(tile) >= 3
+    def can_form_kong(self, hand, discarded_tile):
+        return hand.count(discarded_tile) >= 3
 
-    def can_meld(self, hand, tile):
+    def can_meld(self, hand, discarded_tile):
         chow, pong, kong = False, False, False
-        if self.can_form_chow(hand, tile):
+        if self.can_form_chow(hand, discarded_tile):
             chow = True
-        if self.can_form_pong(hand, tile):
+        if self.can_form_pong(hand, discarded_tile):
             pong = True
-        if self.can_form_kong(hand, tile):
+        if self.can_form_kong(hand, discarded_tile):
             kong = True
         return chow, pong, kong
     
